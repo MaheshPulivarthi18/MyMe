@@ -21,7 +21,7 @@ import {
   carrent,
   jobit,
   tripguide,
-  threejs,
+  os,
   next,
 } from "../assets";
 
@@ -167,25 +167,26 @@ const testimonials = [
 
 const projects = [
   {
-    name: "Car Rent",
+    name: `Multithreded_proxyserver
+    with_cache`,
     description:
       "Web-based platform that allows users to search, book, and manage car rentals from various providers, providing a convenient and efficient solution for transportation needs.",
     tags: [
       {
-        name: "react",
+        name: "os",
         color: "blue-text-gradient",
       },
       {
-        name: "mongodb",
+        name: "threading",
         color: "green-text-gradient",
       },
       {
-        name: "tailwind",
+        name: "sockets",
         color: "pink-text-gradient",
       },
     ],
-    image: carrent,
-    source_code_link: "https://github.com/",
+    image: os,
+    source_code_link: "https://github.com/MaheshPulivarthi18/multi_threaded_proxyserver_with_cache",
   },
   {
     name: "Job IT",

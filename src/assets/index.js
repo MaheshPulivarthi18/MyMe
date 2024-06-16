@@ -20,7 +20,7 @@ import reactjs from "./tech/reactjs.png";
 import linux from "./tech/linux.jpeg";
 import tailwind from "./tech/tailwind.png";
 import typescript from "./tech/typescript.png";
-import threejs from "./tech/threejs.svg";
+import os from "./tech/os.png";
 import next from "./tech/images.png";
 import onestop from "./tech/1Stop.png";
 
@@ -54,7 +54,7 @@ export {
   linux,
   tailwind,
   typescript,
-  threejs,
+  os,
   c,
   c1,
   iiitdmj,
