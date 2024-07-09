@@ -189,12 +189,12 @@ const projects = [
     source_code_link: "https://github.com/MaheshPulivarthi18/multi_threaded_proxyserver_with_cache",
   },
   {
-    name: "Job IT",
+    name: "My Messenger",
     description:
-      "Web application that enables users to search for job openings, view estimated salary ranges for positions, and locate available jobs based on their current location.",
+      "This MERN-based real-time chat app features instant messaging, live status updates, and secure authentication. Styled with TailwindCSS and Daisy UI, it uses Zustand for state management and includes error handling and deployment guidance.     ",
     tags: [
       {
-        name: "react",
+        name: "MERN",
         color: "blue-text-gradient",
       },
       {
@@ -202,33 +202,39 @@ const projects = [
         color: "green-text-gradient",
       },
       {
-        name: "scss",
+        name: "Jwt",
         color: "pink-text-gradient",
+
       },
+      {
+        name: "socket.io",
+        color: "green-text-gradient",
+      },
+
     ],
     image: jobit,
-    source_code_link: "https://github.com/",
+    source_code_link: "https://github.com/MaheshPulivarthi18/my_messenger",
   },
   {
-    name: "Trip Guide",
+    name: "Smart Transac",
     description:
-      "A comprehensive travel booking platform that allows users to book flights, hotels, and rental cars, and offers curated recommendations for popular destinations.",
+      "This system minimizes the number of transactions among multiple banks in the different corners of the world that use different modes of payment. There is one world bank (with all payment modes) to act as an intermediary between banks that have no common mode of payment.",
     tags: [
       {
-        name: "nextjs",
+        name: "Algorithm",
         color: "blue-text-gradient",
       },
       {
-        name: "supabase",
+        name: "django",
         color: "green-text-gradient",
       },
       {
-        name: "css",
+        name: "Data Structures",
         color: "pink-text-gradient",
       },
     ],
     image: tripguide,
-    source_code_link: "https://github.com/",
+    source_code_link: "https://github.com/MaheshPulivarthi18/Magic_With_DS",
   },
 ];
 

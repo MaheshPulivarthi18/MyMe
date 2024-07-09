@@ -30,7 +30,7 @@ import iiitdmj from "./tech/iiitdmj.jpeg";
 import c1 from "./tech/c++.png";
 
 import carrent from "./carrent.png";
-import jobit from "./jobit.png";
+import jobit from "./jobit.jpeg";
 import tripguide from "./tripguide.png";
 
 export {
