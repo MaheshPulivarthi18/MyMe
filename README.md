@@ -1,8 +1,16 @@
-# React + Vite
+# 🎨 Mahesh Pulivarthi - Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to my portfolio repository! Explore my work and get in touch.
 
-Currently, two official plugins are available:
+## 🌐 Live Portfolio
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![Visit My Portfolio](https://img.shields.io/badge/View%20Portfolio-%23000000?style=for-the-badge&logo=vercel&logoColor=white)](https://my-me-one.vercel.app/)
+
+## 📬 Connect With Me
+
+Feel free to reach out if you'd like to connect!
+
+[![Email Me](https://img.shields.io/badge/Email%20Me-%23000000?style=for-the-badge&logo=gmail&logoColor=white)](mailto:maheshpulivarthi18@gmail.com)
+[![Call Me](https://img.shields.io/badge/Call%20Me-%23000000?style=for-the-badge&logo=phone&logoColor=white)](tel:+919392816922)
+
+
