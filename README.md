@@ -1,4 +1,6 @@
 # 🎨 Mahesh Pulivarthi - Portfolio
+![tenor](https://github.com/user-attachments/assets/d9492a27-fdeb-4345-834c-0e82ca2ac526)
+
 
 Welcome to my portfolio repository! Explore my work and get in touch.
 
