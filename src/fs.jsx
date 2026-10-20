@@ -66,7 +66,7 @@ const Contact = () => (
   <>
     <p className="kv"><span className="c-hi">email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></p>
     <p className="kv"><span className="c-hi">github</span><Ext href={profile.github}>github.com/MaheshPulivarthi18</Ext></p>
-    <p className="kv"><span className="c-hi">linkedin</span><Ext href={profile.linkedin}>in/mahesh-pulivarthi</Ext></p>
+    <p className="kv"><span className="c-hi">linkedin</span><Ext href={profile.linkedin}>in/mahesh-pulivarthi-210033279</Ext></p>
     <p className="c-dim gap">Or run <span className="c-cmd">mail</span> to send me a message from here.</p>
   </>
 );
