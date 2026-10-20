@@ -238,7 +238,7 @@ export function lookup(path) {
   if (!path.startsWith(`${HOME}/`)) return path === "/" || path === "/home" ? { type: "dir", children: {}, outside: true } : null;
   let node = ROOT;
   for (const seg of path.slice(HOME.length + 1).split("/")) {
-    if (node?.type !== "dir") return null;
+    if (node?.type !== "dir" || !Object.prototype.hasOwnProperty.call(node.children, seg)) return null;
     node = node.children[seg];
   }
   return node ?? null;
