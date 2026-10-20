@@ -1,18 +1,25 @@
-# 🎨 Mahesh Pulivarthi - Portfolio
-![tenor](https://github.com/user-attachments/assets/d9492a27-fdeb-4345-834c-0e82ca2ac526)
+# Mahesh Pulivarthi, portfolio
 
+Personal site for Mahesh Pulivarthi, backend & platform engineer.
+Live at [my-me-one.vercel.app](https://my-me-one.vercel.app/).
 
-Welcome to my portfolio repository! Explore my work and get in touch.
+The centrepiece is a career timeline drawn as a distributed trace waterfall:
+each role and project is a span you can expand.
 
-## 🌐 Live Portfolio
+## Run it
 
-[![Visit My Portfolio](https://img.shields.io/badge/View%20Portfolio-%23000000?style=for-the-badge&logo=vercel&logoColor=white)](https://my-me-one.vercel.app/)
+```sh
+npm install
+npm run dev     # local dev server
+npm run build   # production build in dist/
+```
 
-## 📬 Connect With Me
+## Update the content
 
-Feel free to reach out if you'd like to connect!
+All text lives in `src/data.js`: profile, timeline spans,
+projects and skills.
 
-[![Email Me](https://img.shields.io/badge/Email%20Me-%23000000?style=for-the-badge&logo=gmail&logoColor=white)](mailto:maheshpulivarthi18@gmail.com)
-[![Call Me](https://img.shields.io/badge/Call%20Me-%23000000?style=for-the-badge&logo=phone&logoColor=white)](tel:+919392816922)
+## Stack
 
-
+React 18 and Vite, with plain CSS (`src/index.css`, light and dark themes).
+The contact form sends through EmailJS.
