@@ -28,7 +28,7 @@ for (let y = Math.ceil(axisStart / 12); y * 12 <= axisEnd; y++) years.push(y);
 const kindLabel = { work: "Work", edu: "Education", project: "Project" };
 
 export default function Trace() {
-  const [open, setOpen] = useState("valuefy-se");
+  const [open, setOpen] = useState(null);
 
   return (
     <div className="trace" role="list" aria-label="Career timeline">

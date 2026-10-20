@@ -4,7 +4,7 @@ export const profile = {
   name: "Mahesh Pulivarthi",
   role: "Backend & platform engineer",
   intro:
-    "I build production wealthtech systems at Valuefy: microservices, data pipelines, and the tracing that shows where every millisecond goes.",
+    "I build backend systems, then write down how they work. By day I'm a software engineer at Valuefy; the rest of the time I make libraries, pipelines and guides like the ones below.",
   email: "maheshpulivarthi18@gmail.com",
   github: "https://github.com/MaheshPulivarthi18",
   linkedin: "https://www.linkedin.com/in/mahesh-pulivarthi",
@@ -80,79 +80,89 @@ export const spans = [
       "Work on multi-database support and distributed tracing with OpenTelemetry across services.",
     ],
   },
-  {
-    id: "arxivlens",
-    depth: 0,
-    kind: "project",
-    name: "ArxivLens",
-    where: "Paper ingestion & semantic search",
-    start: "2026-01",
-    end: "2026-08",
-    approx: true,
-    link: "https://github.com/MaheshPulivarthi18/ArxivLens",
-    detail: [
-      "Event-driven ingestion in Go, Kafka and Python workers into PostgreSQL with pgvector.",
-      "Idempotent processing, retries, dead-letter routing and partition-keyed ordering.",
-      "Go RAG service with citation-aware answers, traced across HTTP and Kafka.",
-    ],
-  },
-  {
-    id: "oceanic",
-    depth: 0,
-    kind: "project",
-    name: "Oceanic Connectors",
-    where: "Async multi-database ORM",
-    start: "2026-01",
-    end: "2026-09",
-    approx: true,
-    link: "https://github.com/MaheshPulivarthi18/postgres-connector",
-    detail: [
-      "Async connectors and ORM for PostgreSQL and MySQL with one model, query and migration interface.",
-      "Batch relation loading resolves nested relations in O(depth) queries, with no N+1.",
-    ],
-  },
 ];
 
-export const projects = [
+export const interests = [
+  "Observability and distributed tracing",
+  "Async database tooling",
+  "Squeezing performance out of plain code",
+  "Small local models that make decisions",
+];
+
+// Featured builds. `flow` is drawn as the project's pipeline.
+export const builds = [
+  {
+    name: "Oceanic Postgres ORM",
+    kind: "Python library",
+    summary:
+      "An async PostgreSQL ORM on asyncpg. Nested relations like orders.items.product load in one query per level, so there is never an N+1.",
+    points: [
+      "LoopBack-style filter DSL with where, order, include and row locking",
+      "Transactions with savepoints and retry on deadlocks",
+      "Streaming cursors, LISTEN/NOTIFY, upserts and additive migrations",
+    ],
+    flow: ["Typed model", "Filter DSL", "Batched IN (...) per depth", "asyncpg", "Typed instances"],
+    stack: ["Python", "asyncpg", "PostgreSQL"],
+    link: "https://github.com/MaheshPulivarthi18/postgres-connector",
+  },
+  {
+    name: "cas-pdf-parser",
+    kind: "TypeScript package",
+    summary:
+      "Reads password-protected Consolidated Account Statements from CAMS, KFintech, NSDL and CDSL, in Node.js or the browser, and returns typed holdings data.",
+    points: [
+      "Detects the statement source and format automatically",
+      "Works with paths, buffers or a browser File",
+      "Decimal-safe values for money",
+    ],
+    flow: ["Encrypted PDF", "Extract text", "Detect source", "Parse holdings", "Typed JSON"],
+    stack: ["TypeScript", "pdf.js", "Vitest"],
+    link: "https://github.com/MaheshPulivarthi18/cas-parser",
+  },
   {
     name: "ArxivLens",
-    year: "2026",
+    kind: "Distributed system",
     summary:
-      "Crawls, parses, chunks and embeds arXiv papers through a Kafka pipeline, then answers questions over them with citations.",
+      "Ingests arXiv papers through a Kafka pipeline and answers questions over them with citations.",
+    points: [
+      "Idempotent workers with retries and dead-letter routing",
+      "Partition-keyed ordering per paper",
+      "Traces follow a request across HTTP and Kafka",
+    ],
+    flow: ["Go crawler", "Kafka", "Python parse & embed", "pgvector", "Go RAG service"],
     stack: ["Go", "Kafka", "Python", "pgvector", "OpenTelemetry"],
     link: "https://github.com/MaheshPulivarthi18/ArxivLens",
   },
+];
+
+export const guides = [
   {
-    name: "Oceanic Connectors",
-    year: "2026",
+    name: "OpenTelemetry, from first principles",
     summary:
-      "An async ORM on asyncpg with typed models, a LoopBack-style filter DSL, nested relations, JSONB, soft deletes and migrations.",
-    stack: ["Python", "asyncpg", "PostgreSQL", "MySQL"],
-    link: "https://github.com/MaheshPulivarthi18/postgres-connector",
+      "Eleven chapters that start with why logs alone fail and end with metrics and logs tied back to traces. Each one has a small Node.js exercise.",
+    progress: "11 chapters",
+    link: "https://github.com/MaheshPulivarthi18/OpenTelmetry",
   },
   {
-    name: "1 Billion Row Challenge",
-    year: "2026",
+    name: "One Billion Row Challenge in Node.js",
     summary:
-      "A step-by-step guide that takes a slow Node.js program for a billion rows of data and makes it fast, one idea per step: bytes, parsing, worker threads.",
-    stack: ["Node.js", "Performance", "Worker threads"],
+      "Take a slow program and make it fast in eight small steps: bytes instead of strings, hand-written parsing, then worker threads.",
+    progress: "8 steps",
     link: "https://github.com/MaheshPulivarthi18/1billionrow",
   },
   {
-    name: "Fusion ERP, Gymkhana module",
-    year: "2023–24",
+    name: "Laya cookbook",
     summary:
-      "Club, membership and event management for a Django institute ERP, owned from design to deployment.",
-    stack: ["Django", "REST", "PostgreSQL"],
-    link: "https://github.com/MaheshPulivarthi18/Fusion",
+      "Runnable recipes for Laya, an open-source local decision model that answers typed questions in one forward pass, with no text generation.",
+    progress: "Recipes + production notes",
+    link: "https://github.com/MaheshPulivarthi18/Laya-CookBook",
   },
-  {
-    name: "Multi-threaded proxy server",
-    year: "2024",
-    summary: "An HTTP proxy with a shared cache, built on sockets and threads.",
-    stack: ["C", "Sockets", "Threads"],
-    link: "https://github.com/MaheshPulivarthi18/multi_threaded_proxyserver_with_cache",
-  },
+];
+
+export const more = [
+  { name: "Multi-threaded proxy server", note: "HTTP proxy with a shared cache, in C", link: "https://github.com/MaheshPulivarthi18/multi_threaded_proxyserver_with_cache" },
+  { name: "Fusion ERP, Gymkhana module", note: "Django module I owned end to end", link: "https://github.com/MaheshPulivarthi18/Fusion" },
+  { name: "My Messenger", note: "Real-time MERN chat with Socket.IO", link: "https://github.com/MaheshPulivarthi18/my_messenger" },
 ];
 
 export const skills = [

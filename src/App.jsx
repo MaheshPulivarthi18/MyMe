@@ -1,12 +1,23 @@
 import Trace from "./components/Trace";
 import Contact from "./components/Contact";
-import { profile, projects, skills } from "./data";
+import { profile, interests, builds, guides, more, skills } from "./data";
 
 const nav = [
-  { href: "#trace", label: "Timeline" },
-  { href: "#projects", label: "Projects" },
+  { href: "#built", label: "Built" },
+  { href: "#guides", label: "Guides" },
+  { href: "#background", label: "Background" },
   { href: "#contact", label: "Contact" },
 ];
+
+function Flow({ steps, label }) {
+  return (
+    <ol className="flow" aria-label={`How ${label} works`}>
+      {steps.map((s) => (
+        <li key={s}>{s}</li>
+      ))}
+    </ol>
+  );
+}
 
 export default function App() {
   return (
@@ -31,50 +42,89 @@ export default function App() {
             <p className="hero-role">{profile.role}</p>
             <p className="hero-intro">{profile.intro}</p>
             <ul className="hero-links">
-              <li><a className="btn" href="#contact">Get in touch</a></li>
+              <li><a className="btn" href="#built">See what I&apos;ve built</a></li>
               <li><a href={profile.github} target="_blank" rel="noreferrer">GitHub</a></li>
               <li><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
-              <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+              <li><a href={`mailto:${profile.email}`}>Email</a></li>
+            </ul>
+          </div>
+          <div className="now">
+            <h2>Into lately</h2>
+            <ul>
+              {interests.map((i) => (
+                <li key={i}>{i}</li>
+              ))}
             </ul>
           </div>
         </section>
 
-        <section id="trace" className="block">
+        <section id="built" className="block">
           <div className="block-head">
-            <h2>Timeline</h2>
-            <p>Read it like a trace: each bar is a span of my career. Select one to see what happened inside it.</p>
+            <h2>Things I&apos;ve built</h2>
+            <p>Libraries and systems I designed and wrote end to end. Each line shows how data moves through it.</p>
           </div>
-          <Trace />
-          <ul className="legend" aria-label="Legend">
-            <li className="lg-work">Work</li>
-            <li className="lg-edu">Education</li>
-            <li className="lg-project">Project</li>
-          </ul>
+          <div className="builds">
+            {builds.map((b) => (
+              <article className="build" key={b.name}>
+                <header className="build-head">
+                  <h3>
+                    <a href={b.link} target="_blank" rel="noreferrer">{b.name}</a>
+                  </h3>
+                  <p className="build-kind">{b.kind}</p>
+                </header>
+                <Flow steps={b.flow} label={b.name} />
+                <div className="build-body">
+                  <p className="build-summary">{b.summary}</p>
+                  <ul className="build-points">
+                    {b.points.map((pt) => (
+                      <li key={pt}>{pt}</li>
+                    ))}
+                  </ul>
+                  <p className="build-meta">
+                    <span>{b.stack.join(", ")}</span>
+                    <a href={b.link} target="_blank" rel="noreferrer">Source on GitHub</a>
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
-        <section id="projects" className="block">
+        <section id="guides" className="block">
           <div className="block-head">
-            <h2>Projects</h2>
-            <p>Things I build to go deeper on systems: pipelines, ORMs, and raw performance.</p>
+            <h2>Guides I&apos;ve written</h2>
+            <p>I learn by building in small steps and writing each one down, so others can follow the same path.</p>
           </div>
-          <ul className="projects">
-            {projects.map((p) => (
-              <li key={p.name}>
-                <a href={p.link} target="_blank" rel="noreferrer">
-                  <span className="proj-name">{p.name}</span>
-                  <span className="proj-year">{p.year}</span>
-                  <span className="proj-summary">{p.summary}</span>
-                  <span className="proj-stack">{p.stack.join(", ")}</span>
+          <ul className="guides">
+            {guides.map((g) => (
+              <li key={g.name}>
+                <a href={g.link} target="_blank" rel="noreferrer">
+                  <span className="guide-name">{g.name}</span>
+                  <span className="guide-summary">{g.summary}</span>
+                  <span className="guide-progress">{g.progress}</span>
                 </a>
               </li>
             ))}
           </ul>
+          <div className="more">
+            <h3>Earlier projects</h3>
+            <ul>
+              {more.map((m) => (
+                <li key={m.name}>
+                  <a href={m.link} target="_blank" rel="noreferrer">{m.name}</a>
+                  <span>{m.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
-        <section id="skills" className="block">
+        <section id="background" className="block">
           <div className="block-head">
-            <h2>Toolbox</h2>
+            <h2>Background</h2>
+            <p>Where I&apos;ve worked and studied, drawn like a trace. Select a span to open it.</p>
           </div>
+          <Trace />
           <dl className="skills">
             {skills.map((s) => (
               <div key={s.group}>
@@ -87,8 +137,8 @@ export default function App() {
 
         <section id="contact" className="block">
           <div className="block-head">
-            <h2>Get in touch</h2>
-            <p>Want to talk about a role, a project or a gnarly backend problem? Send a message here or email me directly.</p>
+            <h2>Say hello</h2>
+            <p>Want to talk about a project, a role or a gnarly backend problem? Send a message here or email me directly.</p>
           </div>
           <Contact />
         </section>
@@ -96,7 +146,7 @@ export default function App() {
 
       <footer className="foot">
         <p>© {new Date().getFullYear()} {profile.name}</p>
-        <a href={profile.github} target="_blank" rel="noreferrer">Source on GitHub</a>
+        <a href="https://github.com/MaheshPulivarthi18/MyMe" target="_blank" rel="noreferrer">Source on GitHub</a>
       </footer>
     </>
   );
