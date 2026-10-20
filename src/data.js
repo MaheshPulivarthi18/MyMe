@@ -4,14 +4,14 @@ export const profile = {
   name: "Mahesh Pulivarthi",
   role: "Backend & platform engineer",
   intro:
-    "I build backend systems, then write down how they work. By day I'm a software engineer at Valuefy; the rest of the time I make libraries, pipelines and guides like the ones below.",
+    "I build backend systems, then write down how they work. By day I'm a software engineer at Valuefy; the rest of the time I make libraries, pipelines and guides.",
   email: "maheshpulivarthi18@gmail.com",
   github: "https://github.com/MaheshPulivarthi18",
   linkedin: "https://www.linkedin.com/in/mahesh-pulivarthi",
+  resume: "/Mahesh_Pulivarthi_Resume.pdf",
 };
 
-// Spans for the career trace. Dates are "YYYY-MM"; end: null means ongoing.
-// `approx: true` shows the year only, for projects without exact months.
+// Career entries for the `experience` command. Dates are "YYYY-MM"; end: null means ongoing.
 export const spans = [
   {
     id: "edu",
@@ -172,4 +172,10 @@ export const skills = [
   { group: "Databases", items: ["PostgreSQL", "MySQL", "Oracle", "MongoDB", "asyncpg", "ORM design", "Query tuning"] },
   { group: "Infrastructure", items: ["AWS", "Kubernetes", "Docker", "Nginx", "Linux", "CI/CD"] },
   { group: "Observability & AI", items: ["OpenTelemetry", "Prometheus", "Grafana", "LLM integration", "OCR"] },
+];
+
+export const achievements = [
+  "Graph Theory Camp: top 1.25% of 40,000+ participants, Hall of Fame",
+  "900+ competitive programming problems solved",
+  "Uninhibited Spirit award and an innovation award at Valuefy",
 ];
