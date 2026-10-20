@@ -592,7 +592,9 @@ export default function Terminal() {
         <div className="panes">
           <Explorer cwd={cwd} disabled={booting} onFile={(p) => run(`cat ${rel(p)}`)} onDir={(p) => {
             run(`cd ${display(p)}`);
-            run("ls");
+            // run() already cancelled any open mail draft; a second run() would
+            // still see the old `mail` state and print the notice twice.
+            runCommand("ls");
           }} />
 
           <main className="screen" onClick={() => !window.getSelection()?.toString() && !booting && focusInput()}>
