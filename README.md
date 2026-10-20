@@ -21,5 +21,8 @@ projects and skills.
 
 ## Stack
 
-React 18 and Vite, with plain CSS (`src/index.css`, light and dark themes).
+React 18 and Vite with plain CSS. The hero is an interactive terminal
+(`src/components/Terminal.jsx`) floating over a live Three.js scene
+(`src/components/SystemScene.jsx`). The resume served by the site is
+`public/Mahesh_Pulivarthi_Resume.pdf`.
 The contact form sends through EmailJS.

@@ -1,7 +1,8 @@
 import Trace from "./components/Trace";
 import Contact from "./components/Contact";
 import SystemScene from "./components/SystemScene";
-import { profile, interests, builds, guides, more, skills } from "./data";
+import Terminal from "./components/Terminal";
+import { profile, builds, guides, more, skills } from "./data";
 
 const nav = [
   { href: "#built", label: "Built" },
@@ -37,37 +38,29 @@ export default function App() {
 
       <main id="main">
         <section className="hero" id="top">
-          <h1>
-            <span>Mahesh</span>
-            <span>Pulivarthi</span>
-          </h1>
-          <div className="hero-copy">
-            <p className="hero-role">{profile.role}</p>
-            <p className="hero-intro">{profile.intro}</p>
-            <ul className="hero-links">
-              <li><a className="btn" href="#built">See what I&apos;ve built</a></li>
-              <li><a className="btn btn-ghost" href={profile.resume} download>Download resume</a></li>
-              <li><a href={profile.github} target="_blank" rel="noreferrer">GitHub</a></li>
-              <li><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
-              <li><a href={`mailto:${profile.email}`}>Email</a></li>
-            </ul>
+          <div className="hero-side">
+            <h1>
+              <span>Mahesh</span>
+              <span>Pulivarthi</span>
+            </h1>
+            <div className="hero-copy">
+              <p className="hero-role">{profile.role}</p>
+              <p className="hero-intro">{profile.intro}</p>
+              <ul className="hero-links">
+                <li><a className="btn" href="#built">See what I&apos;ve built</a></li>
+                <li><a className="btn btn-ghost" href={profile.resume} download>Download resume</a></li>
+                <li><a href={profile.github} target="_blank" rel="noreferrer">GitHub</a></li>
+                <li><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
+                <li><a href={`mailto:${profile.email}`}>Email</a></li>
+              </ul>
+            </div>
           </div>
-          <p className="hero-caption">
-            Behind this text: a live model of an event-driven backend. Requests flow from clients
-            through a gateway, Kafka and workers into the data stores. Move your pointer or scroll to turn it.
-          </p>
-          <div className="now">
-            <h2>Into lately</h2>
-            <ul>
-              {interests.map((i) => (
-                <li key={i}>{i}</li>
-              ))}
-            </ul>
-          </div>
+          <Terminal />
         </section>
 
         <section id="built" className="block">
           <div className="block-head">
+            <p className="path" aria-hidden="true">$ cd ~/built</p>
             <h2>Things I&apos;ve built</h2>
             <p>Libraries and systems I designed and wrote end to end. Each line shows how data moves through it.</p>
           </div>
@@ -100,6 +93,7 @@ export default function App() {
 
         <section id="guides" className="block">
           <div className="block-head">
+            <p className="path" aria-hidden="true">$ cd ~/guides</p>
             <h2>Guides I&apos;ve written</h2>
             <p>I learn by building in small steps and writing each one down, so others can follow the same path.</p>
           </div>
@@ -129,6 +123,7 @@ export default function App() {
 
         <section id="background" className="block">
           <div className="block-head">
+            <p className="path" aria-hidden="true">$ cd ~/background</p>
             <h2>Background</h2>
             <p>Where I&apos;ve worked and studied, drawn like a trace. Select a span to open it.</p>
           </div>
@@ -146,6 +141,7 @@ export default function App() {
         <section id="resume" className="block">
           <div className="resume">
             <div>
+              <p className="path" aria-hidden="true">$ cat resume.pdf</p>
               <h2>Resume</h2>
               <p>One page: experience, projects, skills and achievements.</p>
             </div>
@@ -158,6 +154,7 @@ export default function App() {
 
         <section id="contact" className="block">
           <div className="block-head">
+            <p className="path" aria-hidden="true">$ ./contact.sh</p>
             <h2>Say hello</h2>
             <p>Want to talk about a project, a role or a gnarly backend problem? Send a message here or email me directly.</p>
           </div>
