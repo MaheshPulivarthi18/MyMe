@@ -364,6 +364,13 @@ a:hover {
   text-align: right;
 }
 
+.work-row {
+  display: grid;
+  grid-template-columns: 30ch 1fr;
+  gap: 1ch;
+  padding-left: 2ch;
+}
+
 .kv {
   display: grid;
   grid-template-columns: 22ch 1fr;
@@ -383,6 +390,7 @@ a:hover {
 
 @media (max-width: 600px) {
   .kv,
+  .work-row,
   .cmd-table p {
     grid-template-columns: 1fr;
     gap: 0;

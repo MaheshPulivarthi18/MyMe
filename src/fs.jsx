@@ -1,5 +1,6 @@
 // A small virtual file system for the terminal, built from src/data.js.
 import { profile, interests, builds, guides, more, skills, spans, achievements } from "./data";
+import { work, workGroups } from "./work";
 
 export const HOME = "/home/mahesh";
 
@@ -32,6 +33,7 @@ const Readme = () => (
         ["ls", "list this folder"],
         ["cat about.txt", "who I am"],
         ["cd projects", "go into a folder, then ls"],
+        ["work", "every repo on my GitHub, by topic"],
         ["tree", "see everything at once"],
         ["open resume.pdf", "view my resume"],
         ["mail", "send me a message"],
@@ -143,6 +145,39 @@ const College = () => {
   );
 };
 
+const WorkFile = ({ w }) => (
+  <>
+    <p className="c-hi"># {w.title}</p>
+    <p className="c-dim">{w.lang} · {w.year}</p>
+    <p className="gap">{w.summary}</p>
+    <p className="gap"><span className="c-hi">## highlights</span></p>
+    {w.points.map((pt) => <p key={pt}>- {pt}</p>)}
+    <p className="gap"><span className="c-hi">stack:</span> {w.stack.join(", ")}</p>
+    <p><span className="c-hi">source:</span> <Ext href={w.repo}>{w.repo.replace("https://", "")}</Ext></p>
+    {w.live && <p><span className="c-hi">live:</span> <Ext href={w.live}>{w.live.replace("https://", "")}</Ext></p>}
+    {w.extra?.map(([label, url]) => (
+      <p key={url}><span className="c-hi">{label}:</span> <Ext href={url}>{url.replace("https://", "")}</Ext></p>
+    ))}
+  </>
+);
+
+export const WorkIndex = () => (
+  <>
+    {Object.entries(workGroups).map(([g, about]) => (
+      <div key={g} className="block">
+        <p><span className="c-dir">~/work/{g}/</span> <span className="c-dim"># {about}</span></p>
+        {work.filter((w) => w.group === g).map((w) => (
+          <p key={w.file} className="work-row">
+            <span>{w.file}</span>
+            <span className="c-dim">{w.summary.split(/\.\s|:\s/)[0].replace(/\.$/, "")}</span>
+          </p>
+        ))}
+      </div>
+    ))}
+    <p className="gap c-dim">{work.length} repos. Read one with <span className="c-cmd">cat ~/work/systems/oceanic-postgres-orm.md</span>, or <span className="c-cmd">open</span> it on GitHub.</p>
+  </>
+);
+
 const Achievements = () => achievements.map((a) => <p key={a}>★ {a}</p>);
 
 /* ---------- the tree ---------- */
@@ -165,6 +200,14 @@ export const ROOT = dir({
         const name = g.link.includes("OpenTelmetry") ? "opentelemetry" : g.link.includes("1billionrow") ? "1brc-nodejs" : slug(g.name);
         return [`${name}.md`, file(() => <Guide g={g} />, { size: size(g), link: g.link })];
       })
+    )
+  ),
+  work: dir(
+    Object.fromEntries(
+      Object.keys(workGroups).map((g) => [
+        g,
+        dir(Object.fromEntries(work.filter((w) => w.group === g).map((w) => [w.file, file(() => <WorkFile w={w} />, { size: size(w), link: w.repo })]))),
+      ])
     )
   ),
   experience: dir({

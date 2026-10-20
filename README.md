@@ -4,7 +4,9 @@ Personal site for Mahesh Pulivarthi, backend & platform engineer.
 Live at [my-me-one.vercel.app](https://my-me-one.vercel.app/).
 
 The whole site is a green-phosphor terminal with a small virtual file
-system (`~/projects`, `~/guides`, `~/experience`, `about.txt`, `resume.pdf`…).
+system (`~/projects`, `~/work`, `~/guides`, `~/experience`, `about.txt`,
+`resume.pdf`…). `~/work` holds a write-up of every public GitHub repo,
+edited in `src/work.js`.
 Visitors explore with `ls`, `cd`, `cat`, `tree` and `open`, click files in
 the explorer sidebar, or tap the tmux-style status bar.
 

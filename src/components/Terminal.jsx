@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { profile, skills, spans, builds, guides } from "../data";
-import { HOME, ROOT, resolve, lookup, display, sortedEntries } from "../fs";
+import { HOME, ROOT, resolve, lookup, display, sortedEntries, WorkIndex } from "../fs";
+import { work } from "../work";
 
 const HOST = "mahesh@portfolio";
 
@@ -16,7 +17,7 @@ const LOGO = [
 const BOOT = [
   "portfolio-sh 3.0 (tty1)",
   "[  OK  ] Mounted /home/mahesh",
-  `[  OK  ] Indexed ${builds.length} projects, ${guides.length} guides`,
+  `[  OK  ] Indexed ${builds.length} projects, ${guides.length} guides, ${work.length} repos`,
   "[  OK  ] Started mail daemon",
   "[  OK  ] Reached target: ready to talk",
 ];
@@ -43,6 +44,7 @@ const Neofetch = () => {
     ["Education", `${edu.name}, ${edu.where}`],
     ["Languages", skills[0].items.join(", ")],
     ["Focus", "distributed systems, databases, observability"],
+    ["Repos", `${work.length} public on GitHub (see ~/work)`],
     ["Solved", "900+ competitive programming problems"],
     ["Shell", "portfolio-sh 3.0"],
   ];
@@ -71,7 +73,8 @@ const HELP = [
   ["open <file>", "open a project, guide or resume.pdf"],
   ["pwd", "print the current folder"],
   ["neofetch", "system info, the short version of me"],
-  ["projects", "read every project file"],
+  ["projects", "read the featured project files"],
+  ["work", "every repo on my GitHub, by topic"],
   ["experience", "work and education"],
   ["skills", "my toolbox"],
   ["resume", "download my resume (PDF)"],
@@ -207,12 +210,13 @@ const MAIL_STEPS = [
 ];
 
 const COMMAND_NAMES = [
-  "ls", "cd", "cat", "tree", "open", "pwd", "neofetch", "whoami", "projects", "experience",
+  "ls", "cd", "cat", "tree", "open", "pwd", "neofetch", "whoami", "projects", "work", "experience",
   "skills", "resume", "contact", "mail", "history", "clear", "help",
 ];
 
 const WINDOWS = [
   ["projects", "projects"],
+  ["work", "work"],
   ["experience", "experience"],
   ["skills", "skills"],
   ["resume", "resume"],
@@ -327,6 +331,9 @@ export default function Terminal() {
             </div>
           );
         });
+      case "work":
+        if (!arg) return <WorkIndex />;
+        return execute(`ls ~/work/${arg}`);
       case "experience":
         return ["valuefy.log", "iiitdm-jabalpur.log", "achievements.txt"].map((f, i) => (
           <div key={f} className={i ? "file-block" : ""}>
