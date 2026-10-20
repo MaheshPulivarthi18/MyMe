@@ -7,7 +7,7 @@ export const profile = {
     "I build backend systems, then write down how they work. By day I'm a software engineer at Valuefy; the rest of the time I make libraries, pipelines and guides.",
   email: "maheshpulivarthi18@gmail.com",
   github: "https://github.com/MaheshPulivarthi18",
-  linkedin: "https://www.linkedin.com/in/mahesh-pulivarthi",
+  linkedin: "https://www.linkedin.com/in/mahesh-pulivarthi-210033279/",
   resume: "/Mahesh_Pulivarthi_Resume.pdf",
 };
 
