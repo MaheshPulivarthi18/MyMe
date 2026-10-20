@@ -236,6 +236,7 @@ export default function Terminal() {
   const [clock, setClock] = useState(() => new Date());
   const history = useRef([]);
   const histIdx = useRef(-1);
+  const draft = useRef("");
   const inputRef = useRef(null);
   const endRef = useRef(null);
   const idRef = useRef(0);
@@ -377,9 +378,9 @@ export default function Terminal() {
   const runCommand = (raw) => {
     const text = raw.trim();
     const prompt = promptFor(cwdRef.current);
+    histIdx.current = -1;
     if (!text) return push({ prompt, cmd: "" });
     history.current = [text, ...history.current.filter((h) => h !== text)].slice(0, 50);
-    histIdx.current = -1;
     const name = text.split(/\s+/)[0].toLowerCase();
     if (name === "clear") return setLines([]);
     if (name === "mail") {
@@ -525,6 +526,7 @@ export default function Terminal() {
         setMail(null);
         push({ out: <p className="c-dim">^C  Cancelled. Nothing was sent.</p> });
       } else push({ prompt: promptFor(cwd), cmd: `${input}^C` });
+      histIdx.current = -1;
       setInput("");
       return;
     }
@@ -539,14 +541,18 @@ export default function Terminal() {
       e.preventDefault();
       const i = Math.min(histIdx.current + 1, history.current.length - 1);
       if (i >= 0) {
+        // Leaving the line being typed: keep it so ArrowDown can bring it back.
+        if (histIdx.current === -1) draft.current = input;
         histIdx.current = i;
         setInput(history.current[i]);
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
+      // Already on the line being typed: nothing newer to show, so leave it alone.
+      if (histIdx.current === -1) return;
       const i = histIdx.current - 1;
-      histIdx.current = Math.max(i, -1);
-      setInput(i >= 0 ? history.current[i] : "");
+      histIdx.current = i;
+      setInput(i >= 0 ? history.current[i] : draft.current);
     } else if (e.key === "Tab") {
       e.preventDefault();
       complete();
