@@ -8,6 +8,7 @@ export const profile = {
   email: "maheshpulivarthi18@gmail.com",
   github: "https://github.com/MaheshPulivarthi18",
   linkedin: "https://www.linkedin.com/in/mahesh-pulivarthi",
+  resume: "/Mahesh_Pulivarthi_Resume.pdf",
 };
 
 // Spans for the career trace. Dates are "YYYY-MM"; end: null means ongoing.

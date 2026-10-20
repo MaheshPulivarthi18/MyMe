@@ -1,11 +1,13 @@
 import Trace from "./components/Trace";
 import Contact from "./components/Contact";
+import SystemScene from "./components/SystemScene";
 import { profile, interests, builds, guides, more, skills } from "./data";
 
 const nav = [
   { href: "#built", label: "Built" },
   { href: "#guides", label: "Guides" },
   { href: "#background", label: "Background" },
+  { href: "#resume", label: "Resume" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -22,6 +24,7 @@ function Flow({ steps, label }) {
 export default function App() {
   return (
     <>
+      <SystemScene />
       <a className="skip" href="#main">Skip to content</a>
       <header className="top">
         <a className="mark" href="#top" aria-label={`${profile.name}, home`}>MP</a>
@@ -43,11 +46,16 @@ export default function App() {
             <p className="hero-intro">{profile.intro}</p>
             <ul className="hero-links">
               <li><a className="btn" href="#built">See what I&apos;ve built</a></li>
+              <li><a className="btn btn-ghost" href={profile.resume} download>Download resume</a></li>
               <li><a href={profile.github} target="_blank" rel="noreferrer">GitHub</a></li>
               <li><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
               <li><a href={`mailto:${profile.email}`}>Email</a></li>
             </ul>
           </div>
+          <p className="hero-caption">
+            Behind this text: a live model of an event-driven backend. Requests flow from clients
+            through a gateway, Kafka and workers into the data stores. Move your pointer or scroll to turn it.
+          </p>
           <div className="now">
             <h2>Into lately</h2>
             <ul>
@@ -133,6 +141,19 @@ export default function App() {
               </div>
             ))}
           </dl>
+        </section>
+
+        <section id="resume" className="block">
+          <div className="resume">
+            <div>
+              <h2>Resume</h2>
+              <p>One page: experience, projects, skills and achievements.</p>
+            </div>
+            <div className="resume-actions">
+              <a className="btn" href={profile.resume} download>Download PDF</a>
+              <a className="btn btn-ghost" href={profile.resume} target="_blank" rel="noreferrer">Open in browser</a>
+            </div>
+          </div>
         </section>
 
         <section id="contact" className="block">
