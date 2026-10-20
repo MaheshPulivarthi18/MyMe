@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
-import { profile, interests, builds, guides, more, skills, spans, achievements } from "../data";
+import { profile, skills, spans, builds, guides } from "../data";
+import { HOME, ROOT, resolve, lookup, display, sortedEntries } from "../fs";
 
 const HOST = "mahesh@portfolio";
-const PROMPT = `${HOST}:~$`;
 
 const LOGO = [
   " __  __ ____  ",
@@ -13,13 +13,17 @@ const LOGO = [
   "|_|  |_|_|    ",
 ].join("\n");
 
-const Ext = ({ href, children }) => (
-  <a href={href} target="_blank" rel="noreferrer">{children}</a>
-);
+const BOOT = [
+  "portfolio-sh 3.0 (tty1)",
+  "[  OK  ] Mounted /home/mahesh",
+  `[  OK  ] Indexed ${builds.length} projects, ${guides.length} guides`,
+  "[  OK  ] Started mail daemon",
+  "[  OK  ] Reached target: ready to talk",
+];
 
-const ym = (v) => (v ? v.replace("-", ".") : "now");
+const fmtSize = (n) => (n >= 1024 ? `${(n / 1024).toFixed(1)}K` : `${n}`);
 
-const download = () => {
+const downloadResume = () => {
   const a = document.createElement("a");
   a.href = profile.resume;
   a.download = "Mahesh_Pulivarthi_Resume.pdf";
@@ -28,219 +32,172 @@ const download = () => {
   a.remove();
 };
 
-/* ---------- command outputs ---------- */
+/* ---------- outputs ---------- */
 
 const Neofetch = () => {
-  const valuefy = spans.find((s) => s.id === "valuefy-se");
+  const work = spans.find((s) => s.id === "valuefy-se");
   const edu = spans.find((s) => s.id === "edu");
   const info = [
     ["Role", profile.role],
-    ["Work", `${valuefy.name} @ ${valuefy.where}`],
+    ["Work", `${work.name} @ ${work.where}`],
     ["Education", `${edu.name}, ${edu.where}`],
     ["Languages", skills[0].items.join(", ")],
     ["Focus", "distributed systems, databases, observability"],
     ["Solved", "900+ competitive programming problems"],
-    ["Shell", "portfolio-sh 2.0"],
+    ["Shell", "portfolio-sh 3.0"],
   ];
   return (
     <div className="neofetch">
       <pre className="logo" aria-hidden="true">{LOGO}</pre>
       <div>
-        <p><span className="c-ok">mahesh</span>@<span className="c-ok">portfolio</span></p>
+        <p className="c-hi">mahesh@portfolio</p>
         <p className="c-dim">{"-".repeat(16)}</p>
         {info.map(([k, v]) => (
-          <p key={k}><span className="c-key">{k}</span>: {v}</p>
+          <p key={k}><span className="c-hi">{k}</span>: {v}</p>
         ))}
         <p className="swatches" aria-hidden="true">
-          {["c1", "c2", "c3", "c4", "c5", "c6"].map((c) => <i key={c} className={c} />)}
+          {[1, 2, 3, 4, 5, 6].map((c) => <i key={c} className={`s${c}`} />)}
         </p>
       </div>
     </div>
   );
 };
 
-const Help = ({ list }) => (
+const HELP = [
+  ["ls [-l] [dir]", "list files"],
+  ["cd <dir>", "change folder (cd .. goes up)"],
+  ["cat <file>", "read a file"],
+  ["tree", "show every file"],
+  ["open <file>", "open a project, guide or resume.pdf"],
+  ["pwd", "print the current folder"],
+  ["neofetch", "system info, the short version of me"],
+  ["projects", "read every project file"],
+  ["experience", "work and education"],
+  ["skills", "my toolbox"],
+  ["resume", "download my resume (PDF)"],
+  ["contact", "ways to reach me"],
+  ["mail", "send me a message from here"],
+  ["history", "commands you've run"],
+  ["clear", "clear the screen"],
+];
+
+const Help = () => (
   <>
-    <p className="c-dim">Available commands:</p>
     <div className="cmd-table">
-      {list.map(([name, about]) => (
-        <p key={name}><span className="c-cmd">{name}</span><span className="c-dim">{about}</span></p>
+      {HELP.map(([c, d]) => (
+        <p key={c}><span className="c-cmd">{c}</span><span className="c-dim">{d}</span></p>
       ))}
     </div>
-    <p className="c-dim gap">Tab completes · ↑/↓ history · Ctrl+L clears · or tap a window in the bar below.</p>
+    <p className="c-dim gap">Tab completes commands and paths · ↑/↓ history · Ctrl+L clears · Ctrl+C cancels</p>
   </>
 );
 
-const Projects = () => (
-  <>
-    {builds.map((b, i) => (
-      <div key={b.name} className="block">
-        <p>
-          <span className="c-dim">[{i + 1}]</span> <Ext href={b.link}>{b.name}</Ext>{" "}
-          <span className="c-dim">({b.kind})</span>
-        </p>
-        <div className="indent">
-          <p>{b.summary}</p>
-          <p className="flow"><span className="c-key">flow</span>  {b.flow.join(" ─▶ ")}</p>
-          {b.points.map((pt) => <p key={pt}><span className="c-ok">+</span> {pt}</p>)}
-          <p className="c-dim">stack: {b.stack.join(", ")}</p>
-        </div>
-      </div>
-    ))}
-    <p className="c-dim gap">Also: {more.map((m, i) => (
-      <span key={m.name}>{i ? ", " : ""}<Ext href={m.link}>{m.name}</Ext></span>
-    ))}. Try “guides” next.</p>
-  </>
-);
-
-const Guides = () => (
-  <>
-    {guides.map((g) => (
-      <div key={g.name} className="block">
-        <p><Ext href={g.link}>{g.name}</Ext> <span className="c-dim">[{g.progress}]</span></p>
-        <p className="indent c-dim">{g.summary}</p>
-      </div>
-    ))}
-  </>
-);
-
-const Experience = () => {
-  const valuefy = spans.filter((s) => s.id.startsWith("valuefy"));
-  const [vRoot, ...vRoles] = valuefy;
-  const roles = [...vRoles].reverse();
-  const edu = spans.find((s) => s.id === "edu");
-  const fusion = spans.find((s) => s.id === "fusion");
+const Ls = ({ node, long }) => {
+  const entries = sortedEntries(node);
+  if (!long) {
+    return (
+      <p className="ls">
+        {entries.map(([name, n]) => (
+          <span key={name} className={n.type === "dir" ? "c-dir" : n.kind === "pdf" ? "c-bin" : ""}>
+            {name}{n.type === "dir" ? "/" : ""}
+          </span>
+        ))}
+      </p>
+    );
+  }
   return (
     <>
-      <p><span className="c-ok">{vRoot.name}</span> <span className="c-dim">{vRoot.where} · {ym(vRoot.start)} → {ym(vRoot.end)}</span></p>
-      {roles.map((r, i) => {
-        const last = i === roles.length - 1;
-        return (
-          <div key={r.id}>
-            <p><span className="c-dim">{last ? "└── " : "├── "}</span>{r.name} <span className="c-dim">{ym(r.start)} → {ym(r.end)}</span></p>
-            {r.detail.map((d) => (
-              <p key={d} className="tree-detail"><span className="c-dim">{last ? "    " : "│   "}</span><span>• {d}</span></p>
-            ))}
-          </div>
-        );
-      })}
-      <p className="gap"><span className="c-ok">{edu.where}</span> <span className="c-dim">{edu.name} · {ym(edu.start)} → {ym(edu.end)}</span></p>
-      <p><span className="c-dim">└── </span>{fusion.name}, {fusion.where} <span className="c-dim">{ym(fusion.start)} → {ym(fusion.end)}</span></p>
-      {fusion.detail.map((d) => (
-        <p key={d} className="tree-detail"><span className="c-dim">{"    "}</span><span>• {d}</span></p>
+      <p className="c-dim">total {entries.length}</p>
+      {entries.map(([name, n]) => (
+        <p key={name} className="ls-l">
+          <span className="c-dim">{n.type === "dir" ? "drwxr-xr-x" : "-rw-r--r--"}</span>
+          <span className="c-dim">mahesh</span>
+          <span className="c-dim num">{n.type === "dir" ? "4.0K" : fmtSize(n.size)}</span>
+          <span className="c-dim">Oct 20</span>
+          <span className={n.type === "dir" ? "c-dir" : n.kind === "pdf" ? "c-bin" : ""}>
+            {name}{n.type === "dir" ? "/" : ""}
+          </span>
+        </p>
       ))}
-      <p className="gap c-key">achievements</p>
-      {achievements.map((a) => <p key={a}><span className="c-ok">★</span> {a}</p>)}
     </>
   );
 };
 
-const Skills = () => (
-  <>
-    {skills.map((s) => (
-      <p key={s.group} className="kv">
-        <span className="c-key">{s.group.toLowerCase().replace(/ & | /g, "_")}</span>
-        <span>{s.items.join(", ")}</span>
-      </p>
-    ))}
-  </>
-);
-
-const Contact = () => (
-  <>
-    <p className="kv"><span className="c-key">email</span><a href={`mailto:${profile.email}`}>{profile.email}</a></p>
-    <p className="kv"><span className="c-key">github</span><Ext href={profile.github}>github.com/MaheshPulivarthi18</Ext></p>
-    <p className="kv"><span className="c-key">linkedin</span><Ext href={profile.linkedin}>in/mahesh-pulivarthi</Ext></p>
-    <p className="c-dim gap">Or type “mail” to send me a message from right here.</p>
-  </>
-);
-
-/* ---------- command table ---------- */
-
-const COMMANDS = {
-  help: { about: "show this list" },
-  neofetch: { about: "system info, the short version of me", run: () => <Neofetch /> },
-  whoami: {
-    about: "a few lines about me",
-    run: () => (
-      <>
-        <p><strong>{profile.name}</strong>, {profile.role.toLowerCase()}.</p>
-        <p className="c-dim">{profile.intro}</p>
-        <p className="gap"><span className="c-key">into lately</span></p>
-        {interests.map((i) => <p key={i}><span className="c-ok">›</span> {i}</p>)}
-      </>
-    ),
-  },
-  projects: { about: "things I've built, and how they work", run: () => <Projects /> },
-  guides: { about: "guides I've written", run: () => <Guides /> },
-  experience: { about: "work and education, as a tree", run: () => <Experience /> },
-  skills: { about: "my toolbox", run: () => <Skills /> },
-  resume: {
-    about: "download my resume (PDF)",
-    run: () => {
-      download();
-      return (
-        <p>Downloading <Ext href={profile.resume}>Mahesh_Pulivarthi_Resume.pdf</Ext>… <span className="c-dim">(or “open resume” to view it)</span></p>
+const Tree = ({ node, label }) => {
+  const rows = [];
+  let files = 0;
+  let dirs = 0;
+  const walk = (n, prefix) => {
+    const entries = sortedEntries(n);
+    entries.forEach(([name, child], i) => {
+      const last = i === entries.length - 1;
+      rows.push(
+        <p key={prefix + name}>
+          <span className="c-dim">{prefix}{last ? "└── " : "├── "}</span>
+          <span className={child.type === "dir" ? "c-dir" : child.kind === "pdf" ? "c-bin" : ""}>{name}</span>
+        </p>
       );
-    },
-  },
-  contact: { about: "ways to reach me", run: () => <Contact /> },
-  mail: { about: "send me a message from this terminal" },
-  open: {
-    about: "open github, linkedin, resume or a project",
-    run: (arg) => {
-      const targets = {
-        github: profile.github,
-        linkedin: profile.linkedin,
-        resume: profile.resume,
-        oceanic: builds[0].link,
-        "cas-pdf-parser": builds[1].link,
-        arxivlens: builds[2].link,
-        otel: guides[0].link,
-        "1brc": guides[1].link,
-        laya: guides[2].link,
-      };
-      const url = targets[(arg || "").toLowerCase()];
-      if (!url) return <p className="c-err">open: try one of {Object.keys(targets).join(", ")}</p>;
-      window.open(url, "_blank", "noopener");
-      return <p className="c-dim">Opening {url}</p>;
-    },
-  },
-  clear: { about: "clear the screen" },
-  history: { hidden: true },
-  ls: { hidden: true, run: () => <p>projects/  guides/  experience.log  skills.txt  resume.pdf  contact.txt</p> },
-  cat: {
-    hidden: true,
-    run: (arg) => {
-      const files = {
-        "resume.pdf": "resume",
-        "contact.txt": "contact",
-        "skills.txt": "skills",
-        "experience.log": "experience",
-      };
-      const c = files[arg];
-      return c ? COMMANDS[c].run() : <p className="c-err">cat: {arg || "missing operand"}: No such file. Try “ls”.</p>;
-    },
-  },
-  cd: {
-    hidden: true,
-    run: (arg) => {
-      const dir = (arg || "").replace(/[~/.]/g, "");
-      if (!dir) return null;
-      return COMMANDS[dir]?.run ? COMMANDS[dir].run() : <p className="c-err">cd: {arg}: No such directory</p>;
-    },
-  },
-  sudo: { hidden: true, run: () => <p className="c-err">mahesh is not in the sudoers file. This incident will be reported.</p> },
-  exit: { hidden: true, run: () => <p className="c-dim">There is no escape. Try “projects” instead.</p> },
-  date: { hidden: true, run: () => <p>{new Date().toString()}</p> },
-  echo: { hidden: true, run: (arg) => <p>{arg}</p> },
-  pwd: { hidden: true, run: () => <p>/home/mahesh</p> },
+      if (child.type === "dir") {
+        dirs += 1;
+        walk(child, prefix + (last ? "    " : "│   "));
+      } else files += 1;
+    });
+  };
+  walk(node, "");
+  return (
+    <>
+      <p className="c-dir">{label}</p>
+      {rows}
+      <p className="gap c-dim">{dirs} directories, {files} files</p>
+    </>
+  );
 };
 
-const visible = Object.entries(COMMANDS).filter(([, c]) => !c.hidden).map(([n, c]) => [n, c.about]);
-const names = Object.keys(COMMANDS);
+const Err = ({ children }) => <p className="c-err">{children}</p>;
 
-const WINDOWS = ["projects", "experience", "skills", "resume", "contact", "mail", "help"];
+/* ---------- explorer sidebar ---------- */
+
+function Explorer({ cwd, onFile, onDir, disabled }) {
+  const [open, setOpen] = useState({ [`${HOME}/projects`]: true });
+  const render = (node, base, depth) =>
+    sortedEntries(node).map(([name, child]) => {
+      const path = `${base}/${name}`;
+      const isDir = child.type === "dir";
+      const expanded = open[path];
+      return (
+        <li key={path}>
+          <button
+            type="button"
+            disabled={disabled}
+            className={`${isDir ? "c-dir" : child.kind === "pdf" ? "c-bin" : ""}${cwd === path ? " here" : ""}`}
+            style={{ paddingLeft: `${10 + depth * 14}px` }}
+            aria-expanded={isDir ? !!expanded : undefined}
+            onClick={() => {
+              if (isDir) {
+                setOpen((o) => ({ ...o, [path]: !o[path] }));
+                onDir(path);
+              } else onFile(path);
+            }}
+          >
+            <span className="c-dim" aria-hidden="true">{isDir ? (expanded ? "▾ " : "▸ ") : "  "}</span>
+            {name}{isDir ? "/" : ""}
+          </button>
+          {isDir && expanded && <ul>{render(child, path, depth + 1)}</ul>}
+        </li>
+      );
+    });
+  return (
+    <aside className="explorer" aria-label="File explorer">
+      <p className="explorer-head">EXPLORER</p>
+      <button type="button" className={`root c-dir${cwd === HOME ? " here" : ""}`} disabled={disabled} onClick={() => onDir(HOME)}>
+        ~/ <span className="c-dim">mahesh</span>
+      </button>
+      <ul>{render(ROOT, HOME, 0)}</ul>
+    </aside>
+  );
+}
+
+/* ---------- terminal ---------- */
 
 const MAIL_STEPS = [
   { key: "name", ask: "Your name:" },
@@ -249,55 +206,178 @@ const MAIL_STEPS = [
   { key: "confirm", ask: "Send it? (y/n):" },
 ];
 
-/* ---------- component ---------- */
+const COMMAND_NAMES = [
+  "ls", "cd", "cat", "tree", "open", "pwd", "neofetch", "whoami", "projects", "experience",
+  "skills", "resume", "contact", "mail", "history", "clear", "help",
+];
+
+const WINDOWS = [
+  ["projects", "projects"],
+  ["experience", "experience"],
+  ["skills", "skills"],
+  ["resume", "resume"],
+  ["contact", "contact"],
+  ["mail", "mail"],
+  ["tree", "tree"],
+  ["help", "help"],
+];
 
 export default function Terminal() {
   const [lines, setLines] = useState([]);
   const [input, setInput] = useState("");
+  const [cwd, setCwd] = useState(HOME);
   const [booting, setBooting] = useState(true);
   const [typing, setTyping] = useState(null);
-  const [mail, setMail] = useState(null); // { step, data } while composing
+  const [mail, setMail] = useState(null);
   const [clock, setClock] = useState(() => new Date());
   const history = useRef([]);
   const histIdx = useRef(-1);
   const inputRef = useRef(null);
   const endRef = useRef(null);
   const idRef = useRef(0);
+  const cwdRef = useRef(HOME);
 
+  const promptFor = (dir) => `${HOST}:${display(dir)}$`;
   const push = useCallback((entry) => setLines((ls) => [...ls, { id: idRef.current++, ...entry }]), []);
-
   const focusInput = () => inputRef.current?.focus({ preventScroll: true });
 
-  const startMail = () => {
-    setMail({ step: 0, data: {} });
-    return (
-      <p className="c-dim">Composing a message to Mahesh. Press Ctrl+C or type “cancel” to stop.</p>
-    );
+  const changeDir = (path) => {
+    cwdRef.current = path;
+    setCwd(path);
+  };
+
+  const catPath = (path, arg) => {
+    const node = lookup(path);
+    if (!node) return <Err>cat: {arg}: No such file or directory</Err>;
+    if (node.type === "dir") return <Err>cat: {arg}: Is a directory</Err>;
+    return node.body();
+  };
+
+  const execute = (text) => {
+    const here = cwdRef.current;
+    const [first, ...rest] = text.split(/\s+/);
+    const name = first.toLowerCase();
+    const flags = rest.filter((r) => r.startsWith("-"));
+    const args = rest.filter((r) => !r.startsWith("-"));
+    const arg = args.join(" ");
+
+    switch (name) {
+      case "help":
+        return <Help />;
+      case "neofetch":
+        return <Neofetch />;
+      case "whoami":
+        return lookup(`${HOME}/about.txt`).body();
+      case "pwd":
+        return <p>{here}</p>;
+      case "ls":
+      case "ll":
+      case "dir": {
+        const target = resolve(here, arg || ".");
+        const node = lookup(target);
+        if (!node) return <Err>ls: cannot access &apos;{arg}&apos;: No such file or directory</Err>;
+        if (node.outside) return <Err>ls: permission denied. Your home is {display(HOME)}.</Err>;
+        if (node.type === "file") return <p>{arg}</p>;
+        return <Ls node={node} long={name === "ll" || flags.some((f) => f.includes("l"))} />;
+      }
+      case "cd": {
+        const target = resolve(here, arg || "~");
+        const node = lookup(target);
+        if (node?.outside) return <Err>cd: permission denied. Nothing to see outside {display(HOME)}.</Err>;
+        if (!node) return <Err>cd: {arg}: No such file or directory</Err>;
+        if (node.type !== "dir") return <Err>cd: {arg}: Not a directory</Err>;
+        changeDir(target);
+        return null;
+      }
+      case "cat":
+      case "less":
+      case "more":
+      case "head":
+        if (!arg) return <Err>{name}: missing file operand. Try “ls”.</Err>;
+        return catPath(resolve(here, arg), arg);
+      case "tree": {
+        const target = resolve(here, arg || ".");
+        const node = lookup(target);
+        if (!node || node.type !== "dir" || node.outside) return <Err>tree: {arg || "."}: not a folder</Err>;
+        return <Tree node={node} label={display(target)} />;
+      }
+      case "open": {
+        if (["github", "linkedin"].includes(arg)) {
+          window.open(profile[arg], "_blank", "noopener");
+          return <p className="c-dim">Opening {profile[arg]}</p>;
+        }
+        if (!arg) return <Err>open: which file? e.g. “open resume.pdf”</Err>;
+        const node = lookup(resolve(here, arg));
+        if (!node) return <Err>open: {arg}: No such file</Err>;
+        if (node.type === "dir") {
+          changeDir(resolve(here, arg));
+          return <Ls node={node} />;
+        }
+        if (!node.link) return node.body();
+        window.open(node.link, "_blank", "noopener");
+        return <p className="c-dim">Opening {node.link.startsWith("/") ? arg : node.link}</p>;
+      }
+      case "projects":
+        return builds.map((b, i) => {
+          const file = Object.entries(lookup(`${HOME}/projects`).children).find(([, n]) => n.link === b.link);
+          return (
+            <div key={b.name} className={i ? "file-block" : ""}>
+              <p className="c-dim">==&gt; ~/projects/{file[0]} &lt;==</p>
+              {file[1].body()}
+            </div>
+          );
+        });
+      case "experience":
+        return ["valuefy.log", "iiitdm-jabalpur.log", "achievements.txt"].map((f, i) => (
+          <div key={f} className={i ? "file-block" : ""}>
+            <p className="c-dim">==&gt; ~/experience/{f} &lt;==</p>
+            {lookup(`${HOME}/experience/${f}`).body()}
+          </div>
+        ));
+      case "skills":
+        return lookup(`${HOME}/skills.txt`).body();
+      case "contact":
+        return lookup(`${HOME}/contact.txt`).body();
+      case "resume":
+        downloadResume();
+        return <p>Downloading Mahesh_Pulivarthi_Resume.pdf… <span className="c-dim">(“open resume.pdf” views it instead)</span></p>;
+      case "history":
+        return [...history.current].reverse().map((h, i) => (
+          <p key={i}><span className="c-dim">{String(i + 1).padStart(4)}</span>  {h}</p>
+        ));
+      case "sudo":
+        return <Err>mahesh is not in the sudoers file. This incident will be reported.</Err>;
+      case "rm":
+        return <Err>rm: refusing to delete my portfolio. Nice try.</Err>;
+      case "exit":
+      case "logout":
+        return <p className="c-dim">There is no escape. Try “cd projects” instead.</p>;
+      case "echo":
+        return <p>{rest.join(" ")}</p>;
+      case "date":
+        return <p>{new Date().toString()}</p>;
+      case "vim":
+      case "nano":
+      case "emacs":
+        return <p className="c-dim">Read-only file system. (And you&apos;d never get out of vim anyway.)</p>;
+      default:
+        return <Err>{first}: command not found. Type “help”.</Err>;
+    }
   };
 
   const runCommand = (raw) => {
     const text = raw.trim();
-    if (!text) return push({ prompt: PROMPT, cmd: "" });
+    const prompt = promptFor(cwdRef.current);
+    if (!text) return push({ prompt, cmd: "" });
     history.current = [text, ...history.current.filter((h) => h !== text)].slice(0, 50);
     histIdx.current = -1;
-    const [first, ...rest] = text.split(/\s+/);
-    const name = first.toLowerCase();
-    const arg = rest.join(" ");
+    const name = text.split(/\s+/)[0].toLowerCase();
     if (name === "clear") return setLines([]);
-    if (name === "help") return push({ prompt: PROMPT, cmd: text, out: <Help list={visible} /> });
-    if (name === "mail") return push({ prompt: PROMPT, cmd: text, out: startMail() });
-    if (name === "history") {
-      return push({
-        prompt: PROMPT,
-        cmd: text,
-        out: [...history.current].reverse().map((h, i) => <p key={i}><span className="c-dim">{String(i + 1).padStart(4)}</span>  {h}</p>),
-      });
+    if (name === "mail") {
+      setMail({ step: 0, data: {} });
+      return push({ prompt, cmd: text, out: <p className="c-dim">Composing a message to Mahesh. Ctrl+C or “cancel” stops.</p> });
     }
-    const cmd = COMMANDS[name];
-    if (!cmd?.run) {
-      return push({ prompt: PROMPT, cmd: text, out: <p className="c-err">{first}: command not found. Type “help”.</p> });
-    }
-    push({ prompt: PROMPT, cmd: text, out: cmd.run(arg) });
+    push({ prompt, cmd: text, out: execute(text) });
   };
 
   const sendMail = async (data) => {
@@ -306,44 +386,31 @@ export default function Terminal() {
       await emailjs.send(
         "service_3urrs98",
         "template_o6x8rvt",
-        {
-          from_name: data.name,
-          to_name: profile.name,
-          from_email: data.email,
-          to_email: profile.email,
-          message: data.message,
-        },
+        { from_name: data.name, to_name: profile.name, from_email: data.email, to_email: profile.email, message: data.message },
         "5zuNASB_q5Jp0gjBn"
       );
-      push({ out: <p className="c-ok">✓ Sent. Mahesh will reply to {data.email}.</p> });
+      push({ out: <p className="c-hi">✓ Sent. Mahesh will reply to {data.email}.</p> });
     } catch (err) {
       console.error(err);
-      push({
-        out: (
-          <p className="c-err">
-            ✗ The message didn&apos;t go through. Email <a href={`mailto:${profile.email}`}>{profile.email}</a> directly.
-          </p>
-        ),
-      });
+      push({ out: <Err>✗ The message didn&apos;t go through. Email <a href={`mailto:${profile.email}`}>{profile.email}</a> directly.</Err> });
     }
   };
 
   const runMailStep = (raw) => {
     const value = raw.trim();
     const step = MAIL_STEPS[mail.step];
-    push({ prompt: step.ask, cmd: value });
+    push({ prompt: step.ask, ask: true, cmd: value });
     if (value.toLowerCase() === "cancel") {
       setMail(null);
       return push({ out: <p className="c-dim">Cancelled. Nothing was sent.</p> });
     }
+    if (!value) return push({ out: <Err>This can&apos;t be empty.</Err> });
     if (step.key === "email" && !/^\S+@\S+\.\S+$/.test(value)) {
-      return push({ out: <p className="c-err">That doesn&apos;t look like an email address. Try again.</p> });
+      return push({ out: <Err>That doesn&apos;t look like an email address. Try again.</Err> });
     }
-    if (!value) return push({ out: <p className="c-err">This can&apos;t be empty.</p> });
     if (step.key === "confirm") {
-      const data = mail.data;
       setMail(null);
-      if (/^y(es)?$/i.test(value)) sendMail(data);
+      if (/^y(es)?$/i.test(value)) sendMail(mail.data);
       else push({ out: <p className="c-dim">Not sent.</p> });
       return undefined;
     }
@@ -351,15 +418,20 @@ export default function Terminal() {
     return undefined;
   };
 
-  // Boot: login line, then type "neofetch" and "help".
+  // Boot: kernel-style log, login line, then type "neofetch" and "cat README.md".
   useEffect(() => {
-    const login = { id: idRef.current++, out: <p className="c-dim">Last login: {new Date().toDateString()} on ttys001</p> };
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const login = <p className="c-dim">Last login: {new Date().toDateString()} on tty1</p>;
+    const bootOut = BOOT.map((b) => (
+      <p key={b}>{b.startsWith("[") ? <><span className="c-dim">[</span><span className="c-hi">  OK  </span><span className="c-dim">]</span>{b.slice(8)}</> : b}</p>
+    ));
+    const readme = lookup(`${HOME}/README.md`).body();
+    const prompt = promptFor(HOME);
     if (reduced) {
       setLines([
-        login,
-        { id: idRef.current++, prompt: PROMPT, cmd: "neofetch", out: <Neofetch /> },
-        { id: idRef.current++, prompt: PROMPT, cmd: "help", out: <Help list={visible} /> },
+        { id: idRef.current++, out: <>{bootOut}{login}</> },
+        { id: idRef.current++, prompt, cmd: "neofetch", out: <Neofetch /> },
+        { id: idRef.current++, prompt, cmd: "cat README.md", out: readme },
       ]);
       setBooting(false);
       return undefined;
@@ -371,25 +443,33 @@ export default function Terminal() {
       for (let i = 1; i <= word.length; i++) {
         if (cancelled) return;
         setTyping(word.slice(0, i));
-        await wait(55 + Math.random() * 55);
+        await wait(45 + Math.random() * 50);
       }
-      await wait(220);
+      await wait(200);
       if (cancelled) return;
       setTyping(null);
-      setLines((ls) => [...ls, { id: idRef.current++, prompt: PROMPT, cmd: word, out }]);
+      setLines((ls) => [...ls, { id: idRef.current++, prompt, cmd: word, out }]);
     };
-    setLines([login]);
     (async () => {
-      await wait(450);
+      for (const b of bootOut) {
+        await wait(180);
+        if (cancelled) return;
+        setLines((ls) => [...ls, { id: idRef.current++, out: b, tight: true }]);
+      }
+      await wait(250);
+      if (cancelled) return;
+      setLines((ls) => [...ls, { id: idRef.current++, out: login }]);
+      await wait(350);
       await typeOut("neofetch", <Neofetch />);
-      await wait(450);
-      await typeOut("help", <Help list={visible} />);
+      await wait(400);
+      await typeOut("cat README.md", readme);
       if (!cancelled) setBooting(false);
     })();
     return () => {
       cancelled = true;
       timers.forEach(clearTimeout);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -405,15 +485,37 @@ export default function Terminal() {
     return () => clearInterval(t);
   }, []);
 
+  const complete = () => {
+    const parts = input.split(" ");
+    if (parts.length === 1) {
+      const m = COMMAND_NAMES.filter((n) => n.startsWith(parts[0].toLowerCase()));
+      if (m.length === 1) setInput(`${m[0]} `);
+      else if (m.length > 1) push({ prompt: promptFor(cwd), cmd: input, out: <p className="c-dim">{m.join("   ")}</p> });
+      return;
+    }
+    const partial = parts[parts.length - 1];
+    const slash = partial.lastIndexOf("/");
+    const dirPart = slash >= 0 ? partial.slice(0, slash + 1) : "";
+    const base = partial.slice(slash + 1);
+    const node = lookup(resolve(cwd, dirPart || "."));
+    if (!node || node.type !== "dir") return;
+    const m = sortedEntries(node).filter(([n]) => n.startsWith(base));
+    if (m.length === 1) {
+      const [n, child] = m[0];
+      parts[parts.length - 1] = dirPart + n + (child.type === "dir" ? "/" : "");
+      setInput(parts.join(" "));
+    } else if (m.length > 1) {
+      push({ prompt: promptFor(cwd), cmd: input, out: <p className="ls">{m.map(([n, c]) => <span key={n} className={c.type === "dir" ? "c-dir" : ""}>{n}{c.type === "dir" ? "/" : ""}</span>)}</p> });
+    }
+  };
+
   const onKey = (e) => {
     if (e.key === "c" && e.ctrlKey) {
       e.preventDefault();
       if (mail) {
         setMail(null);
         push({ out: <p className="c-dim">^C  Cancelled. Nothing was sent.</p> });
-      } else {
-        push({ prompt: PROMPT, cmd: `${input}^C` });
-      }
+      } else push({ prompt: promptFor(cwd), cmd: `${input}^C` });
       setInput("");
       return;
     }
@@ -438,17 +540,14 @@ export default function Terminal() {
       setInput(i >= 0 ? history.current[i] : "");
     } else if (e.key === "Tab") {
       e.preventDefault();
-      const typed = input.trim().toLowerCase();
-      const match = names.filter((n) => !COMMANDS[n].hidden && n.startsWith(typed));
-      if (match.length === 1) setInput(`${match[0]} `);
-      else if (match.length > 1) push({ prompt: PROMPT, cmd: input, out: <p className="c-dim">{match.join("   ")}</p> });
+      complete();
     } else if (e.key === "l" && e.ctrlKey) {
       e.preventDefault();
       setLines([]);
     }
   };
 
-  const runWindow = (cmd) => {
+  const run = (cmd) => {
     if (booting) return;
     if (mail) {
       setMail(null);
@@ -458,63 +557,78 @@ export default function Terminal() {
     focusInput();
   };
 
-  const currentPrompt = mail ? MAIL_STEPS[mail.step].ask : PROMPT;
+  const rel = (path) => {
+    const r = display(path);
+    return r.startsWith("~/") && path.startsWith(`${cwdRef.current}/`) ? path.slice(cwdRef.current.length + 1) : r;
+  };
+
+  const currentPrompt = mail ? MAIL_STEPS[mail.step].ask : promptFor(cwd);
   const time = clock.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const day = clock.toLocaleDateString([], { day: "2-digit", month: "short" });
 
   return (
-    <div className="shell">
-      <header className="titlebar">
-        <span className="dots" aria-hidden="true"><i /><i /><i /></span>
-        <h1 className="title">{HOST}: ~ <span className="c-dim">— {profile.name}, {profile.role.toLowerCase()}</span></h1>
-      </header>
+    <div className="crt">
+      <div className="shell">
+        <header className="titlebar">
+          <span className="dots" aria-hidden="true"><i /><i /><i /></span>
+          <h1 className="title">{HOST}: {display(cwd)} <span className="c-dim">— {profile.name}, {profile.role.toLowerCase()}</span></h1>
+        </header>
 
-      <main className="screen" onClick={() => !window.getSelection()?.toString() && !booting && focusInput()}>
-        <div role="log" aria-live="polite" aria-label="Terminal output">
-          {lines.map((l) => (
-            <div key={l.id} className="entry">
-              {l.prompt !== undefined && (
-                <p className="line">
-                  <span className={l.prompt === PROMPT ? "prompt" : "prompt ask"}>{l.prompt}</span> {l.cmd}
-                </p>
-              )}
-              {l.out && <div className="out">{l.out}</div>}
+        <div className="panes">
+          <Explorer cwd={cwd} disabled={booting} onFile={(p) => run(`cat ${rel(p)}`)} onDir={(p) => {
+            run(`cd ${display(p)}`);
+            run("ls");
+          }} />
+
+          <main className="screen" onClick={() => !window.getSelection()?.toString() && !booting && focusInput()}>
+            <div role="log" aria-live="polite" aria-label="Terminal output">
+              {lines.map((l) => (
+                <div key={l.id} className={l.tight ? "entry tight" : "entry"}>
+                  {l.prompt !== undefined && (
+                    <p className="line">
+                      <span className={l.ask ? "prompt ask" : "prompt"}>{l.prompt}</span> {l.cmd}
+                    </p>
+                  )}
+                  {l.out && <div className="out">{l.out}</div>}
+                </div>
+              ))}
             </div>
-          ))}
+            <label className="line input-line" ref={endRef}>
+              <span className={mail ? "prompt ask" : "prompt"}>{currentPrompt}</span>
+              {booting ? (
+                <span>{typing}<span className="caret" aria-hidden="true" /></span>
+              ) : (
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={onKey}
+                  enterKeyHint="send"
+                  aria-label={mail ? MAIL_STEPS[mail.step].ask : "Type a command, for example help"}
+                  type={mail && MAIL_STEPS[mail.step].key === "email" ? "email" : "text"}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                />
+              )}
+            </label>
+          </main>
         </div>
-        <label className="line input-line" ref={endRef}>
-          <span className={mail ? "prompt ask" : "prompt"}>{currentPrompt}</span>
-          {booting ? (
-            <span>{typing}<span className="caret" aria-hidden="true" /></span>
-          ) : (
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={onKey}
-              enterKeyHint="send"
-              aria-label={mail ? MAIL_STEPS[mail.step].ask : "Type a command, for example help"}
-              type={mail && MAIL_STEPS[mail.step].key === "email" ? "email" : "text"}
-              autoComplete="off"
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck="false"
-            />
-          )}
-        </label>
-      </main>
 
-      <nav className="statusbar" aria-label="Quick commands">
-        <span className="session">[portfolio]</span>
-        <div className="windows">
-          {WINDOWS.map((w, i) => (
-            <button key={w} type="button" onClick={() => runWindow(w)} disabled={booting}>
-              {i + 1}:{w}
-            </button>
-          ))}
-        </div>
-        <span className="clock">{time} {day}</span>
-      </nav>
+        <nav className="statusbar" aria-label="Quick commands">
+          <span className="session">[portfolio]</span>
+          <div className="windows">
+            {WINDOWS.map(([label, cmd], i) => (
+              <button key={label} type="button" onClick={() => run(cmd)} disabled={booting}>
+                {i + 1}:{label}
+              </button>
+            ))}
+          </div>
+          <span className="clock">{display(cwd)} │ {time} {day}</span>
+        </nav>
+      </div>
     </div>
   );
 }
+
