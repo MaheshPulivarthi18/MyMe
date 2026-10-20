@@ -311,10 +311,12 @@ export default function Terminal() {
           return <p className="c-dim">Opening {profile[arg]}</p>;
         }
         if (!arg) return <Err>open: which file? e.g. “open resume.pdf”</Err>;
-        const node = lookup(resolve(here, arg));
+        const target = resolve(here, arg);
+        const node = lookup(target);
         if (!node) return <Err>open: {arg}: No such file</Err>;
+        if (node.outside) return <Err>open: permission denied. Nothing to see outside {display(HOME)}.</Err>;
         if (node.type === "dir") {
-          changeDir(resolve(here, arg));
+          changeDir(target);
           return <Ls node={node} />;
         }
         if (!node.link) return node.body();
