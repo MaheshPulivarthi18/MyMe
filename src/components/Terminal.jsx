@@ -36,11 +36,11 @@ const downloadResume = () => {
 /* ---------- outputs ---------- */
 
 const Neofetch = () => {
-  const work = spans.find((s) => s.id === "valuefy-se");
+  const job = spans.find((s) => s.id === "valuefy-se");
   const edu = spans.find((s) => s.id === "edu");
   const info = [
     ["Role", profile.role],
-    ["Work", `${work.name} @ ${work.where}`],
+    ["Work", `${job.name} @ ${job.where}`],
     ["Education", `${edu.name}, ${edu.where}`],
     ["Languages", skills[0].items.join(", ")],
     ["Focus", "distributed systems, databases, observability"],
