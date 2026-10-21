@@ -75,7 +75,7 @@ const Neofetch = () => {
 
 const HELP = [
   ["ls [-l] [dir]", "list files"],
-  ["cd <dir>", "change folder (cd .. goes up)"],
+  ["cd <dir>", "change folder (cd .. goes up, cd - goes back)"],
   ["cat <file>", "read a file"],
   ["tree", "show every file"],
   ["open <file>", "open a project, guide or resume.pdf"],
@@ -249,12 +249,14 @@ export default function Terminal() {
   const endRef = useRef(null);
   const idRef = useRef(0);
   const cwdRef = useRef(HOME);
+  const prevDirRef = useRef(null); // OLDPWD, for "cd -"
 
   const promptFor = (dir) => `${HOST}:${display(dir)}$`;
   const push = useCallback((entry) => setLines((ls) => [...ls, { id: idRef.current++, ...entry }]), []);
   const focusInput = () => inputRef.current?.focus({ preventScroll: true });
 
   const changeDir = (path) => {
+    prevDirRef.current = cwdRef.current;
     cwdRef.current = path;
     setCwd(path);
   };
@@ -309,6 +311,14 @@ export default function Terminal() {
         });
       }
       case "cd": {
+        // "cd -" goes back to the previous folder and prints it, like bash.
+        // The flag filter above would otherwise drop the "-" and send you home.
+        if (rest[0] === "-") {
+          const prev = prevDirRef.current;
+          if (!prev) return <Err>cd: OLDPWD not set</Err>;
+          changeDir(prev);
+          return <p>{prev}</p>;
+        }
         const target = resolve(here, arg || "~");
         const node = lookup(target);
         if (node?.outside) return <Err>cd: permission denied. Nothing to see outside {display(HOME)}.</Err>;
