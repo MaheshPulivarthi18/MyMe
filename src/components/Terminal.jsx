@@ -286,12 +286,27 @@ export default function Terminal() {
       case "ls":
       case "ll":
       case "dir": {
-        const target = resolve(here, arg || ".");
-        const node = lookup(target);
-        if (!node) return <Err>ls: cannot access &apos;{arg}&apos;: No such file or directory</Err>;
-        if (node.outside) return <Err>ls: permission denied. Your home is {display(HOME)}.</Err>;
-        if (node.type === "file") return <p>{arg}</p>;
-        return <Ls node={node} long={name === "ll" || flags.some((f) => f.includes("l"))} />;
+        const long = name === "ll" || flags.some((f) => f.includes("l"));
+        const listOne = (a) => {
+          const node = lookup(resolve(here, a || "."));
+          if (!node) return <Err>ls: cannot access &apos;{a}&apos;: No such file or directory</Err>;
+          if (node.outside) return <Err>ls: permission denied. Your home is {display(HOME)}.</Err>;
+          if (node.type === "file") return <p>{a}</p>;
+          return <Ls node={node} long={long} />;
+        };
+        if (args.length <= 1) return listOne(arg);
+        // Several operands: list each one in turn, folders under a "name:" header
+        // like GNU ls, errors inline.
+        return args.map((a, i) => {
+          const node = lookup(resolve(here, a));
+          const isDir = node?.type === "dir" && !node.outside;
+          return (
+            <div key={`${i}-${a}`} className={i ? "file-block" : ""}>
+              {isDir && <p className="c-dir">{a}:</p>}
+              {listOne(a)}
+            </div>
+          );
+        });
       }
       case "cd": {
         const target = resolve(here, arg || "~");
@@ -351,7 +366,7 @@ export default function Terminal() {
         });
       case "work":
         if (!arg) return <WorkIndex />;
-        return execute(`ls ~/work/${arg}`);
+        return execute(`ls ${args.map((a) => `~/work/${a}`).join(" ")}`);
       case "experience":
         return ["valuefy.log", "iiitdm-jabalpur.log", "achievements.txt"].map((f, i) => (
           <div key={f} className={i ? "file-block" : ""}>
