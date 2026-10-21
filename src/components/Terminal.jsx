@@ -22,6 +22,14 @@ const BOOT = [
   "[  OK  ] Reached target: ready to talk",
 ];
 
+// Longest prefix shared by every word, so Tab can fill in as much as bash would.
+const commonPrefix = (words) =>
+  words.reduce((pre, w) => {
+    let i = 0;
+    while (i < pre.length && i < w.length && pre[i] === w[i]) i++;
+    return pre.slice(0, i);
+  });
+
 const fmtSize = (n) => (n >= 1024 ? `${(n / 1024).toFixed(1)}K` : `${n}`);
 
 const downloadResume = () => {
@@ -507,7 +515,11 @@ export default function Terminal() {
     if (parts.length === 1) {
       const m = COMMAND_NAMES.filter((n) => n.startsWith(parts[0].toLowerCase()));
       if (m.length === 1) setInput(`${m[0]} `);
-      else if (m.length > 1) push({ prompt: promptFor(cwd), cmd: input, out: <p className="c-dim">{m.join("   ")}</p> });
+      else if (m.length > 1) {
+        const pre = commonPrefix(m);
+        if (pre.length > parts[0].length) setInput(pre);
+        else push({ prompt: promptFor(cwd), cmd: input, out: <p className="c-dim">{m.join("   ")}</p> });
+      }
       return;
     }
     const partial = parts[parts.length - 1];
@@ -522,6 +534,14 @@ export default function Terminal() {
       parts[parts.length - 1] = dirPart + n + (child.type === "dir" ? "/" : "");
       setInput(parts.join(" "));
     } else if (m.length > 1) {
+      // Several matches: extend to their shared prefix first; list them only
+      // when there is nothing more to fill in.
+      const pre = commonPrefix(m.map(([n]) => n));
+      if (pre.length > base.length) {
+        parts[parts.length - 1] = dirPart + pre;
+        setInput(parts.join(" "));
+        return;
+      }
       push({ prompt: promptFor(cwd), cmd: input, out: <p className="ls">{m.map(([n, c]) => <span key={n} className={c.type === "dir" ? "c-dir" : ""}>{n}{c.type === "dir" ? "/" : ""}</span>)}</p> });
     }
   };
