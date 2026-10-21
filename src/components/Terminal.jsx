@@ -299,7 +299,14 @@ export default function Terminal() {
       case "more":
       case "head":
         if (!arg) return <Err>{name}: missing file operand. Try “ls”.</Err>;
-        return catPath(resolve(here, arg), arg);
+        if (args.length === 1) return catPath(resolve(here, arg), arg);
+        // Several files: print each one under a head-style banner, errors inline.
+        return args.map((a, i) => (
+          <div key={`${i}-${a}`} className={i ? "file-block" : ""}>
+            <p className="c-dim">==&gt; {a} &lt;==</p>
+            {catPath(resolve(here, a), a)}
+          </div>
+        ));
       case "tree": {
         const target = resolve(here, arg || ".");
         const node = lookup(target);
